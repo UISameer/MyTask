@@ -6,6 +6,7 @@ struct TaskDetailView: View {
     @Binding var showTaskDetailView: Bool
     @Binding var selectedTask: Task
     @Binding var refreshTaskList: Bool
+    @State private var showDeleteAlert: Bool = false
     
     var body: some View {
         NavigationStack {
@@ -22,18 +23,31 @@ struct TaskDetailView: View {
                 
                 Section {
                     Button {
-                        if(taskViewModel.deleteTask(task: selectedTask)) {
-                            showTaskDetailView.toggle()
-                            refreshTaskList.toggle()
-                        }
+                        showDeleteAlert.toggle()
                     } label: {
                         Text("Delete")
                             .fontWeight(.bold)
                             .foregroundColor(.red)
                             .frame(maxWidth: .infinity, alignment: .center)
+                    }.alert("Delete Task?", isPresented: $showDeleteAlert) {
+                        Button {
+                            showTaskDetailView.toggle()
+                        } label: {
+                            Text("No")
+                        }
+                        
+                        Button(role: .destructive) {
+                            if(taskViewModel.deleteTask(task: selectedTask)) {
+                                showTaskDetailView.toggle()
+                                refreshTaskList.toggle()
+                            }
+                        } label: {
+                            Text("Yes")
+                        }
+                    } message: {
+                        Text("Would you like to delete the task \(selectedTask.name)?")
                     }
                 }
-                
             }.navigationTitle("Task Detail")
                 .toolbar{
                     ToolbarItem(placement: .topBarLeading) {
@@ -52,7 +66,7 @@ struct TaskDetailView: View {
                             }
                         } label: {
                             Text("Update")
-                        }
+                        }.disabled(selectedTask.name.isEmpty)
                     }
                 }
         }
