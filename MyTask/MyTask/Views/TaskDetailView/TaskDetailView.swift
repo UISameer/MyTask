@@ -3,8 +3,9 @@ import SwiftUI
 struct TaskDetailView: View {
     
     @ObservedObject var taskViewModel: TaskViewModel
-    @Binding var showATaskDetailView: Bool
+    @Binding var showTaskDetailView: Bool
     @Binding var selectedTask: Task
+    @Binding var refreshTaskList: Bool
     
     var body: some View {
         NavigationStack {
@@ -21,7 +22,10 @@ struct TaskDetailView: View {
                 
                 Section {
                     Button {
-                        
+                        if(taskViewModel.deleteTask(task: selectedTask)) {
+                            showTaskDetailView.toggle()
+                            refreshTaskList.toggle()
+                        }
                     } label: {
                         Text("Delete")
                             .fontWeight(.bold)
@@ -34,7 +38,7 @@ struct TaskDetailView: View {
                 .toolbar{
                     ToolbarItem(placement: .topBarLeading) {
                         Button{
-                            showATaskDetailView = false
+                            showTaskDetailView = false
                         } label: {
                             Text("Cancel")
                         }
@@ -42,7 +46,10 @@ struct TaskDetailView: View {
                     
                     ToolbarItem(placement: .topBarTrailing) {
                         Button{
-                            print("Updated")
+                            if(taskViewModel.updateTask(task: selectedTask)) {
+                                showTaskDetailView.toggle()
+                                refreshTaskList.toggle()
+                            }
                         } label: {
                             Text("Update")
                         }
@@ -53,5 +60,7 @@ struct TaskDetailView: View {
 }
 
 #Preview {
-    TaskDetailView(taskViewModel: TaskViewModel(), showATaskDetailView: .constant(false), selectedTask: .constant(Task.createMockTasks().first!))
+    TaskDetailView(taskViewModel: TaskViewModel(), showTaskDetailView: .constant(false), selectedTask: .constant(Task.createMockTasks().first!),
+                   refreshTaskList: .constant(false)
+    )
 }

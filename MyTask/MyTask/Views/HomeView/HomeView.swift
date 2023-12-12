@@ -8,6 +8,7 @@ struct HomeView: View {
     @State private var showAddTaskView: Bool = false
     @State private var showTaskDetailView: Bool = false
     @State private var selectedTask: Task = Task(id: 0, name: "", description: "", isCompleted: false, finishDate: Date())
+    @State private var refreshTaskList: Bool = false
     
     var body: some View {
         
@@ -37,22 +38,25 @@ struct HomeView: View {
                 }
             }.onAppear {
                 taskViewModel.getTasks(isActive: true)
-            }.listStyle(.plain)
-                .navigationTitle("Home")
-                .toolbar{
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            showAddTaskView = true
-                        } label: {
-                            Image(systemName: "plus")
-                        }
+            }.onChange(of: refreshTaskList) { oldValue, newValue in
+                taskViewModel.getTasks(isActive: defaultPickerSelectedItem == "Active")
+            }
+            .listStyle(.plain)
+            .navigationTitle("Home")
+            .toolbar{
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button {
+                        showAddTaskView = true
+                    } label: {
+                        Image(systemName: "plus")
                     }
-                }.sheet(isPresented: $showAddTaskView) {
-                    AddTaskView(taskViewModel: taskViewModel, showAddTaskView: $showAddTaskView)
                 }
-                .sheet(isPresented: $showTaskDetailView) {
-                    TaskDetailView(taskViewModel: taskViewModel, showATaskDetailView: $showTaskDetailView, selectedTask: $selectedTask)
-                }
+            }.sheet(isPresented: $showAddTaskView) {
+                AddTaskView(taskViewModel: taskViewModel, showAddTaskView: $showAddTaskView, refreshTaskList: $refreshTaskList)
+            }
+            .sheet(isPresented: $showTaskDetailView) {
+                TaskDetailView(taskViewModel: taskViewModel, showTaskDetailView: $showTaskDetailView, selectedTask: $selectedTask, refreshTaskList: $refreshTaskList)
+            }
         }
     }
 }

@@ -108,7 +108,6 @@
 		DC77389F2B270AF5008DBC2A /* MyTask */ = {
 			isa = PBXGroup;
 			children = (
-				DCC177CD2B271F23003ECFA5 /* TaskDetailView */,
 				DCC177C72B271497003ECFA5 /* Extensions */,
 				DCC177C32B27121F003ECFA5 /* Views */,
 				DCC177C02B27109A003ECFA5 /* ViewModel */,
@@ -166,6 +165,7 @@
 		DCC177C32B27121F003ECFA5 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				DCC177CD2B271F23003ECFA5 /* TaskDetailView */,
 				DCC177CA2B271A4B003ECFA5 /* AddTaskView */,
 				DCC177C42B271224003ECFA5 /* HomeView */,
 			);
