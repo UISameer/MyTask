@@ -2,12 +2,12 @@ import SwiftUI
 
 struct HomeView: View {
     
-    @StateObject var taskViewModel: TaskViewModel = TaskViewModel()
+    @StateObject var taskViewModel: TaskViewModel = TaskViewModelFactory.createTaskViewModel()
     @State private var pickerFilters: [String] = ["Active", "Completed"]
     @State private var defaultPickerSelectedItem: String = "Active"
     @State private var showAddTaskView: Bool = false
     @State private var showTaskDetailView: Bool = false
-    @State private var selectedTask: Task = Task(id: 0, name: "", description: "", isCompleted: false, finishDate: Date())
+    @State private var selectedTask: Task = Task.createEmptyTasks()
     @State private var refreshTaskList: Bool = false
     
     var body: some View {
@@ -19,8 +19,8 @@ struct HomeView: View {
                     Text($0)
                 }
             }.pickerStyle(.segmented)
-                .onChange(of: defaultPickerSelectedItem) { oldValue, newValue in
-                    taskViewModel.getTasks(isActive: defaultPickerSelectedItem == "Active")
+                .onChange(of: defaultPickerSelectedItem) {
+                    taskViewModel.getTasks(isCompleted: defaultPickerSelectedItem == "Active")
                 }
             
             List(taskViewModel.tasks, id: \.id) { task in
@@ -37,9 +37,9 @@ struct HomeView: View {
                     showTaskDetailView.toggle()
                 }
             }.onAppear {
-                taskViewModel.getTasks(isActive: true)
-            }.onChange(of: refreshTaskList) { oldValue, newValue in
-                taskViewModel.getTasks(isActive: defaultPickerSelectedItem == "Active")
+                taskViewModel.getTasks(isCompleted: true)
+            }.onChange(of: refreshTaskList) {
+                taskViewModel.getTasks(isCompleted: defaultPickerSelectedItem == "Active")
             }
             .listStyle(.plain)
             .navigationTitle("Home")

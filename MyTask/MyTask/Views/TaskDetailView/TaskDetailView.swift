@@ -74,7 +74,7 @@ struct TaskDetailView: View {
 }
 
 #Preview {
-    TaskDetailView(taskViewModel: TaskViewModel(), showTaskDetailView: .constant(false), selectedTask: .constant(Task.createMockTasks().first!),
+    TaskDetailView(taskViewModel: TaskViewModelFactory.createTaskViewModel(), showTaskDetailView: .constant(false), selectedTask: .constant(Task.createEmptyTasks()),
                    refreshTaskList: .constant(false)
     )
 }

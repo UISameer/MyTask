@@ -3,7 +3,7 @@ import SwiftUI
 struct AddTaskView: View {
     
     @ObservedObject var taskViewModel: TaskViewModel
-    @State private var taskToAdd: Task = Task(id: 0, name: "", description: "", isCompleted: false, finishDate: Date())
+    @State private var taskToAdd: Task = Task.createEmptyTasks()
     @Binding var showAddTaskView: Bool
     @Binding var refreshTaskList: Bool
     @State private var showCancelAlert: Bool = false
@@ -76,5 +76,5 @@ struct AddTaskView: View {
 }
 
 #Preview {
-    AddTaskView(taskViewModel: TaskViewModel(), showAddTaskView: .constant(false), refreshTaskList: .constant(false))
+    AddTaskView(taskViewModel: TaskViewModelFactory.createTaskViewModel(), showAddTaskView: .constant(false), refreshTaskList: .constant(false))
 }
