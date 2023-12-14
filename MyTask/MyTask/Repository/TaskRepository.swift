@@ -2,31 +2,32 @@ import Foundation
 import CoreData.NSManagedObjectContext
 
 protocol TaskRepository {
-    func get(isCompleted: Bool) -> [Task]
-    func update(task: Task) -> Bool
-    func add(task: Task) -> Bool
-    func delete(task: Task) -> Bool
+    func get(isCompleted: Bool) -> Result<[Task], TaskRepositoryError>
+    func update(task: Task) -> Result<Bool, TaskRepositoryError>
+    func add(task: Task) -> Result<Bool, TaskRepositoryError>
+    func delete(task: Task) -> Result<Bool, TaskRepositoryError>
 }
 
 final class TaskRepositoryImplementation: TaskRepository {
     
     private let managedObjectContext: NSManagedObjectContext = PersistenceController.shared.viewContext
     
-    func get(isCompleted: Bool) -> [Task] {
+    func get(isCompleted: Bool) -> Result<[Task], TaskRepositoryError> {
         let fetchRequest = TaskEntity.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "isCompleted == %@", NSNumber(value: isCompleted))
         do {
             let result = try managedObjectContext.fetch(fetchRequest)
             if(!result.isEmpty) {
-                return result.map({Task(id: $0.id!, name: $0.name ?? "", description: $0.taskDescription ?? "", isCompleted: $0.isCompleted, finishDate: $0.finishDate ?? Date())})
+                return .success(result.map({Task(id: $0.id!, name: $0.name ?? "", description: $0.taskDescription ?? "", isCompleted: $0.isCompleted, finishDate: $0.finishDate ?? Date())}))
             }
+            return .success([])
         } catch {
             print("Error \(error.localizedDescription)")
+            return .failure(.operationFailure(error.localizedDescription))
         }
-        return []
     }
     
-    func update(task: Task) -> Bool {
+    func update(task: Task) -> Result<Bool, TaskRepositoryError> {
         let fetchRequest = TaskEntity.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", task.id as CVarArg)
         do {
@@ -37,18 +38,19 @@ final class TaskRepositoryImplementation: TaskRepository {
                 existingTask.finishDate = task.finishDate
                 
                 try managedObjectContext.save()
-                return true
+                return .success(true)
             } else {
                 print("No task found with the id \(task.id)")
-                return false
+                return .failure(.operationFailure("No task found with the id \(task.id)"))
             }
         } catch  {
+            managedObjectContext.rollback()
             print("Error \(error.localizedDescription)")
+            return .failure(.operationFailure("error.localizedDescription"))
         }
-        return false
     }
     
-    func add(task: Task) -> Bool {
+    func add(task: Task) -> Result<Bool, TaskRepositoryError> {
         let taskEntity = TaskEntity(context: managedObjectContext)
         taskEntity.id = UUID()
         taskEntity.isCompleted = false
@@ -58,14 +60,15 @@ final class TaskRepositoryImplementation: TaskRepository {
         
         do {
             try managedObjectContext.save()
-            return true
+            return .success(true)
         } catch  {
+            managedObjectContext.rollback()
             print(error.localizedDescription)
+            return .failure(.operationFailure(error.localizedDescription))
         }
-        return false
     }
     
-    func delete(task: Task) -> Bool {
+    func delete(task: Task) -> Result<Bool, TaskRepositoryError> {
         let fetchRequest = TaskEntity.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "id == %@", task.id as CVarArg)
         
@@ -73,14 +76,15 @@ final class TaskRepositoryImplementation: TaskRepository {
             if let existingTask = try managedObjectContext.fetch(fetchRequest).first {
                 managedObjectContext.delete(existingTask)
                 try managedObjectContext.save()
-                return true
+                return .success(true)
             } else {
                 print("No task with id \(task.id)")
-                return false
+                return .failure(.operationFailure("No task with id \(task.id)"))
             }
         } catch  {
+            managedObjectContext.rollback()
             print(error.localizedDescription)
+            return .failure(.operationFailure(error.localizedDescription))
         }
-        return false
     }
 }

@@ -68,7 +68,13 @@ struct TaskDetailView: View {
                             Text("Update")
                         }.disabled(selectedTask.name.isEmpty)
                     }
-                }
+                }.alert("Task Error", isPresented: $taskViewModel.showError, actions: {
+                    Button(action: {}) {
+                        Text("Ok")
+                    }
+                }, message:{
+                    Text(taskViewModel.errorMessage)
+                })
         }
     }
 }

@@ -28,11 +28,18 @@ struct AddTaskView: View {
                     DatePicker("Task Date", selection: $taskToAdd.finishDate, in: pickerDateRange)
                 }
             }.navigationTitle("Add Task")
+                .alert("Task Error", isPresented: $taskViewModel.showError, actions: {
+                    Button(action: {}) {
+                        Text("Ok")
+                    }
+                }, message:{
+                    Text(taskViewModel.errorMessage)
+                })
                 .toolbar{
                     ToolbarItem(placement: .topBarLeading) {
                         Button{
                             if(!taskToAdd.name.isEmpty) {
-                                // Show Alert
+                                    // Show Alert
                                 showCancelAlert.toggle()
                             } else {
                                 showAddTaskView = false
@@ -47,7 +54,7 @@ struct AddTaskView: View {
                             }
                             
                             Button {
-                                AddTask()
+                                addTask()
                             } label: {
                                 Text("Save")
                             }
@@ -58,7 +65,7 @@ struct AddTaskView: View {
                     
                     ToolbarItem(placement: .topBarTrailing) {
                         Button{
-                            AddTask()
+                            addTask()
                         } label: {
                             Text("Add")
                         }.disabled(taskToAdd.name.isEmpty)
@@ -67,7 +74,7 @@ struct AddTaskView: View {
         }
     }
     
-    private func AddTask() {
+    private func addTask() {
         if(taskViewModel.addTask(task: taskToAdd)) {
             showAddTaskView.toggle()
             refreshTaskList.toggle()
