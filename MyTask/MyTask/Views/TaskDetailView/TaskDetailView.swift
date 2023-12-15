@@ -5,7 +5,6 @@ struct TaskDetailView: View {
     @ObservedObject var taskViewModel: TaskViewModel
     @Binding var showTaskDetailView: Bool
     @Binding var selectedTask: Task
-    @Binding var refreshTaskList: Bool
     @State private var showDeleteAlert: Bool = false
     
     var body: some View {
@@ -37,10 +36,7 @@ struct TaskDetailView: View {
                         }
                         
                         Button(role: .destructive) {
-                            if(taskViewModel.deleteTask(task: selectedTask)) {
-                                showTaskDetailView.toggle()
-                                refreshTaskList.toggle()
-                            }
+                            taskViewModel.deleteTask(task: selectedTask)
                         } label: {
                             Text("Yes")
                         }
@@ -48,39 +44,43 @@ struct TaskDetailView: View {
                         Text("Would you like to delete the task \(selectedTask.name)?")
                     }
                 }
-            }.navigationTitle("Task Detail")
-                .toolbar{
-                    ToolbarItem(placement: .topBarLeading) {
-                        Button{
-                            showTaskDetailView = false
-                        } label: {
-                            Text("Cancel")
-                        }
+            }
+            .onDisappear(perform: {
+                taskViewModel.cancelSubscription()
+            }).onReceive(taskViewModel.shouldDismiss, perform: { shouldDismiss in
+                if(shouldDismiss) {
+                    showTaskDetailView.toggle()
+                }
+            })
+            .navigationTitle("Task Detail")
+            .toolbar{
+                ToolbarItem(placement: .topBarLeading) {
+                    Button{
+                        showTaskDetailView = false
+                    } label: {
+                        Text("Cancel")
                     }
-                    
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button{
-                            if(taskViewModel.updateTask(task: selectedTask)) {
-                                showTaskDetailView.toggle()
-                                refreshTaskList.toggle()
-                            }
-                        } label: {
-                            Text("Update")
-                        }.disabled(selectedTask.name.isEmpty)
-                    }
-                }.alert("Task Error", isPresented: $taskViewModel.showError, actions: {
-                    Button(action: {}) {
-                        Text("Ok")
-                    }
-                }, message:{
-                    Text(taskViewModel.errorMessage)
-                })
+                }
+                
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button{
+                        taskViewModel.updateTask(task: selectedTask)
+                    } label: {
+                        Text("Update")
+                    }.disabled(selectedTask.name.isEmpty)
+                }
+            }.alert("Task Error", isPresented: $taskViewModel.showError, actions: {
+                Button(action: {}) {
+                    Text("Ok")
+                }
+            }, message:{
+                Text(taskViewModel.errorMessage)
+            })
         }
     }
 }
 
 #Preview {
-    TaskDetailView(taskViewModel: TaskViewModelFactory.createTaskViewModel(), showTaskDetailView: .constant(false), selectedTask: .constant(Task.createEmptyTasks()),
-                   refreshTaskList: .constant(false)
+    TaskDetailView(taskViewModel: TaskViewModelFactory.createTaskViewModel(), showTaskDetailView: .constant(false), selectedTask: .constant(Task.createEmptyTasks())
     )
 }
