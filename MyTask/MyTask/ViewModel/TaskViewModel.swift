@@ -1,4 +1,5 @@
 import Foundation
+import Combine
 
 final class TaskViewModel: ObservableObject {
     
@@ -6,45 +7,65 @@ final class TaskViewModel: ObservableObject {
     @Published var tasks: [Task] = []
     @Published var errorMessage: String = ""
     @Published var showError: Bool = false
+    private var cancellable = Set<AnyCancellable>()
+    private var _isCompleted = false
+    var shouldDismiss = PassthroughSubject<Bool, Never>()
     
     init(taskRepository: TaskRepository) {
         self.taskRepository = taskRepository
     }
     
+    deinit {
+        cancelSubscription()
+    }
+    
+    func cancelSubscription() {
+        cancellable.forEach{ $0.cancel() }
+    }
+    
     func getTasks(isCompleted: Bool) {
-        let result = self.taskRepository.get(isCompleted: !isCompleted)
-        switch result {
-            case .success(let fetchedTask):
-                self.errorMessage = ""
-                self.tasks = fetchedTask
-            case .failure(let failure):
-                self.processOperationError(failure)
-        }
+        _isCompleted = isCompleted
+        self.taskRepository.get(isCompleted: !isCompleted)
+            .sink { result in
+                switch result {
+                    case .success(let fetchedTask):
+                        self.errorMessage = ""
+                        self.tasks = fetchedTask
+                    case .failure(let failure):
+                        self.processOperationError(failure)
+                }
+            }.store(in: &cancellable)
     }
     
-    func addTask(task: Task) -> Bool {
-        let result = taskRepository.add(task: task)
-        return processOperationResult(operationResult: result)
+    func addTask(task: Task) {
+        taskRepository.add(task: task)
+            .sink { [weak self] result in
+                self?.processOperationResult(operationResult: result)
+            }.store(in: &cancellable)
     }
     
-    func updateTask(task: Task) -> Bool {
-        let result = taskRepository.update(task: task)
-        return processOperationResult(operationResult: result)
+    func updateTask(task: Task) {
+        taskRepository.update(task: task)
+            .sink { [weak self] result in
+                self?.processOperationResult(operationResult: result)
+            }.store(in: &cancellable)
     }
     
-    func deleteTask(task: Task) -> Bool {
-        let result = taskRepository.delete(task: task)
-        return processOperationResult(operationResult: result)
+    func deleteTask(task: Task) {
+        taskRepository.delete(task: task)
+            .sink { [weak self] result in
+                self?.processOperationResult(operationResult: result)
+            }.store(in: &cancellable)
     }
     
-    private func processOperationResult(operationResult: Result<Bool, TaskRepositoryError>) -> Bool {
+    private func processOperationResult(operationResult: Result<Bool, TaskRepositoryError>) {
         switch operationResult {
-            case .success(let success):
+            case .success(_):
                 self.errorMessage = ""
-                return success
+                self.getTasks(isCompleted: _isCompleted)
+                shouldDismiss.send(true)
             case .failure(let failure):
                 self.processOperationError(failure)
-                return false
         }
     }
     
@@ -53,6 +74,7 @@ final class TaskViewModel: ObservableObject {
             case .operationFailure(let errorMessage):
                 self.showError = true
                 self.errorMessage = errorMessage
+                shouldDismiss.send(false)
         }
     }
 }

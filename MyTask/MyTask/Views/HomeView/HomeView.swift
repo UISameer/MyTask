@@ -3,23 +3,17 @@ import SwiftUI
 struct HomeView: View {
     
     @StateObject var taskViewModel: TaskViewModel = TaskViewModelFactory.createTaskViewModel()
-    @State private var pickerFilters: [String] = ["Active", "Completed"]
-    @State private var defaultPickerSelectedItem: String = "Active"
     @State private var showAddTaskView: Bool = false
     @State private var showTaskDetailView: Bool = false
     @State private var selectedTask: Task = Task.createEmptyTasks()
-    @State private var refreshTaskList: Bool = false
     @State private var showErrorAlert: Bool = false
+    @State var defaultPickerSelectedItem: String = "Active"
     
     var body: some View {
         
         NavigationStack {
             
-            Picker("Filter", selection: $defaultPickerSelectedItem) {
-                ForEach(pickerFilters, id: \.self) {
-                    Text($0)
-                }
-            }.pickerStyle(.segmented)
+            PickerComponent(defaultPickerSelectedItem: $defaultPickerSelectedItem)
                 .onChange(of: defaultPickerSelectedItem) {
                     taskViewModel.getTasks(isCompleted: defaultPickerSelectedItem == "Active")
                 }
@@ -39,9 +33,10 @@ struct HomeView: View {
                 }
             }.onAppear {
                 taskViewModel.getTasks(isCompleted: true)
-            }.onChange(of: refreshTaskList) {
-                taskViewModel.getTasks(isCompleted: defaultPickerSelectedItem == "Active")
-            }.alert("Task Error", isPresented: $taskViewModel.showError, actions: {
+            }.onDisappear(perform: {
+                taskViewModel.cancelSubscription()
+            })
+            .alert("Task Error", isPresented: $taskViewModel.showError, actions: {
                 Button(action: {}) {
                     Text("Ok")
                 }
@@ -59,10 +54,10 @@ struct HomeView: View {
                     }
                 }
             }.sheet(isPresented: $showAddTaskView) {
-                AddTaskView(taskViewModel: taskViewModel, showAddTaskView: $showAddTaskView, refreshTaskList: $refreshTaskList)
+                AddTaskView(taskViewModel: taskViewModel, showAddTaskView: $showAddTaskView)
             }
             .sheet(isPresented: $showTaskDetailView) {
-                TaskDetailView(taskViewModel: taskViewModel, showTaskDetailView: $showTaskDetailView, selectedTask: $selectedTask, refreshTaskList: $refreshTaskList)
+                TaskDetailView(taskViewModel: taskViewModel, showTaskDetailView: $showTaskDetailView, selectedTask: $selectedTask)
             }
         }
     }

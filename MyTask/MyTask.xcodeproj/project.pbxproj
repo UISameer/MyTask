@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		DC3A8AF62B2C3EA20034DD70 /* PickerComponent.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3A8AF52B2C3EA20034DD70 /* PickerComponent.swift */; };
 		DC3D4B332B2A0B1B00588915 /* TaskRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D4B322B2A0B1B00588915 /* TaskRepository.swift */; };
 		DC3D4B352B2A2B6500588915 /* TaskViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D4B342B2A2B6500588915 /* TaskViewModelFactory.swift */; };
 		DC3D4B382B2A330000588915 /* TaskRepositoryError.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC3D4B372B2A330000588915 /* TaskRepositoryError.swift */; };
@@ -46,6 +47,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		DC3A8AF52B2C3EA20034DD70 /* PickerComponent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PickerComponent.swift; sourceTree = "<group>"; };
 		DC3D4B322B2A0B1B00588915 /* TaskRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepository.swift; sourceTree = "<group>"; };
 		DC3D4B342B2A2B6500588915 /* TaskViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskViewModelFactory.swift; sourceTree = "<group>"; };
 		DC3D4B372B2A330000588915 /* TaskRepositoryError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TaskRepositoryError.swift; sourceTree = "<group>"; };
@@ -95,6 +97,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		DC3A8AF42B2C3E8B0034DD70 /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				DC3A8AF52B2C3EA20034DD70 /* PickerComponent.swift */,
+			);
+			path = Components;
+			sourceTree = "<group>";
+		};
 		DC3D4B312B2A0B0100588915 /* Repository */ = {
 			isa = PBXGroup;
 			children = (
@@ -195,6 +205,7 @@
 		DCC177C32B27121F003ECFA5 /* Views */ = {
 			isa = PBXGroup;
 			children = (
+				DC3A8AF42B2C3E8B0034DD70 /* Components */,
 				DCC177CD2B271F23003ECFA5 /* TaskDetailView */,
 				DCC177CA2B271A4B003ECFA5 /* AddTaskView */,
 				DCC177C42B271224003ECFA5 /* HomeView */,
@@ -380,6 +391,7 @@
 				DCC177CC2B271A59003ECFA5 /* AddTaskView.swift in Sources */,
 				DCFAA72A2B2A090D009C589C /* TaskEntity+CoreDataProperties.swift in Sources */,
 				DCC177C62B271240003ECFA5 /* HomeView.swift in Sources */,
+				DC3A8AF62B2C3EA20034DD70 /* PickerComponent.swift in Sources */,
 				DC3D4B352B2A2B6500588915 /* TaskViewModelFactory.swift in Sources */,
 				DC3D4B332B2A0B1B00588915 /* TaskRepository.swift in Sources */,
 				DCC177C92B2714B6003ECFA5 /* Date+Extension.swift in Sources */,
